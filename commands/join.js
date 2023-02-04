@@ -5,11 +5,26 @@ const {
 const { joinVoiceChannel } = require("@discordjs/voice");
 const { witaiToken, mongoPassword } = require("../config.json");
 const Transcriber = require("../transcriber");
-const {MongoClient} = require('mongodb');
+const { MongoClient, ServerApiVersion } = require("mongodb");
 
-const mongoKey = "mongodb+srv://aniramadoss:" + mongoPassword + "@cluster0.tlqxqmi.mongodb.net/?retryWrites=true&w=majority"
+const mongoKey =
+	"mongodb+srv://aniramadoss:" +
+	mongoPassword +
+	"@cluster0.tlqxqmi.mongodb.net/?retryWrites=true&w=majority";
 
 const transcriber = new Transcriber(witaiToken);
+const client = new MongoClient(mongoKey, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+	serverApi: ServerApiVersion.v1,
+});
+client.connect();
+const database = client.db("hackviolet2023");
+const collection = database.collection("banned_words");
+const id = "1071491195571802182";
+// create a document to insert
+
+// result.forEach(console.dir);
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -26,6 +41,11 @@ module.exports = {
 			selfDeaf: false,
 			selfMute: false,
 		});
+		const doc = {
+			serverID: "1234567",
+		};
+		const result = await collection.findOne(doc);
+		console.log(result.banned_words);
 		connection.receiver.speaking.on("start", (userId) => {
 			transcriber
 				.listen(

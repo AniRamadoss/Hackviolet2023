@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, flash
+from config import mongo_password
+import pymongo
 
+
+mongoURI = "mongodb+srv://aniramadoss:" + mongo_password + "@cluster0.tlqxqmi.mongodb.net/?retryWrites=true&w=majority"
 app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
@@ -13,8 +17,17 @@ def index():
 @app.route("/words", methods=['POST', 'GET'])
 def greeter():
     banned_words = request.form['banned_words'].split(",")
-    # print(banned_words)
-    print(
-        f'The server id is: {request.form["sever_id"]} and the banned words are: {request.form["banned_words"]}')
-
+    print(f'The server id is: {request.form["server_id"]} and the banned words are: {request.form["banned_words"]}')
+    insertRecord(request.form["server_id"], request.form["banned_words"])
     return render_template("index.html")
+
+
+def insertRecord(serverID, banned_words):
+	try:
+		client = pymongo.MongoClient(mongoURI)
+		db = client["hackviolet2023"]
+		collection = db["banned_words"]
+		doc = {"serverID": serverID, "banned_words": banned_words}
+		result = collection.insert_one(doc)
+	except:
+		print("Mongo crashed")

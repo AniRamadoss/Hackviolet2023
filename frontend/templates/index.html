@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Banned Words Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    <div class="input-form">
+        <form action="words" method="post">
+            <label for="sid">Sever ID</label>
+            <input type="text" id="sid" name="sever_id" placeholder="e.g. 12345678998767">
+
+            <label for="bwords">Banned Words</label>
+            <input type="text" id="bwords" name="banned_words" placeholder="e.g. some, bad, words">
+
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+
+</html>

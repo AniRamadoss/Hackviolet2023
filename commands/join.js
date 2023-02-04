@@ -3,15 +3,18 @@ const {
 	ChatInputCommandInteraction,
 } = require("discord.js");
 const { joinVoiceChannel } = require("@discordjs/voice");
-const { witaiToken } = require("../config.json");
+const { witaiToken, mongoPassword } = require("../config.json");
 const Transcriber = require("../transcriber");
+const {MongoClient} = require('mongodb');
+
+const mongoKey = "mongodb+srv://aniramadoss:" + mongoPassword + "@cluster0.tlqxqmi.mongodb.net/?retryWrites=true&w=majority"
 
 const transcriber = new Transcriber(witaiToken);
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("ping")
-		.setDescription("Replies with Pong!"),
+		.setName("join")
+		.setDescription("Joins the voice channel!"),
 	async execute(interaction) {
 		let channel = interaction.member.guild.channels.cache.get(
 			interaction.member.voice.channel.id
@@ -39,6 +42,8 @@ module.exports = {
 				});
 		});
 
-		await interaction.reply("pong!");
+		await interaction.reply(
+			"Joined voice chat! Keeping an eye out for misogyny."
+		);
 	},
 };

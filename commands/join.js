@@ -22,10 +22,11 @@ client.connect();
 const database = client.db("hackviolet2023");
 const collection = database.collection("banned_words");
 const id = "1071491195571802182";
+
 // create a document to insert
 
 // result.forEach(console.dir);
-
+let banned_words = [];
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("join")
@@ -45,7 +46,8 @@ module.exports = {
 			serverID: "1234567",
 		};
 		const result = await collection.findOne(doc);
-		console.log(result.banned_words);
+		banned_words = (result.banned_words.split(',')).map(str => str.trim());
+		console.log(banned_words);
 		connection.receiver.speaking.on("start", (userId) => {
 			transcriber
 				.listen(
@@ -59,6 +61,13 @@ module.exports = {
 					let user = data.user;
 
 					console.log("user: " + user + " said: " + text);
+
+					if (banned_words.some(word => text.contains(word))) {
+						// ban user
+					}
+					else {
+						// call ML endpoint
+					}
 				});
 		});
 

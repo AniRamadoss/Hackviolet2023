@@ -8,6 +8,9 @@ app = Flask(__name__)
 app.secret_key = "manbearpig_MUDMAN888"
 
 
+from pysentimiento import create_analyzer
+hate_speech_analyzer = create_analyzer(task="hate_speech", lang="en")
+
 @app.route("/")
 def index():
     flash("Enter the server id and list of banned words")
@@ -21,6 +24,11 @@ def greeter():
     insertRecord(request.form["server_id"], request.form["banned_words"])
     return render_template("index.html")
 
+@app.route("/res", methods=['GET'])
+def query_ml():
+	text = request.args['query']
+	res = hate_speech_analyzer.predict(text)
+	return res.probas
 
 def insertRecord(serverID, banned_words):
 	try:
@@ -31,3 +39,5 @@ def insertRecord(serverID, banned_words):
 		result = collection.insert_one(doc)
 	except:
 		print("Mongo crashed")
+
+

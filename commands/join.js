@@ -27,6 +27,17 @@ const id = "1071491195571802182";
 
 // result.forEach(console.dir);
 let banned_words = [];
+
+const options = {
+	method: 'GET',
+	headers: {
+	'Content-Type': 'application/json',
+	}
+};
+
+const mainChannelId = "1071491196062539889";
+
+const API_ENDPOINT = "http://127.0.0.1:5000";
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("join")
@@ -43,10 +54,10 @@ module.exports = {
 			selfMute: false,
 		});
 		const doc = {
-			serverID: "1234567",
+			serverID: "1071491195571802182",
 		};
 		const result = await collection.findOne(doc);
-		banned_words = (result.banned_words.split(',')).map(str => str.trim());
+		banned_words = (result.banned_words.split(',')).map(str => str.trim().toLowerCase());
 		console.log(banned_words);
 		connection.receiver.speaking.on("start", (userId) => {
 			transcriber
@@ -61,12 +72,35 @@ module.exports = {
 					let user = data.user;
 
 					console.log("user: " + user + " said: " + text);
-
-					if (banned_words.some(word => text.contains(word))) {
-						// ban user
+					console.log("In Banned Words: " + String(banned_words.some(word => text.includes(word))));
+					console.log(banned_words);
+					text = text.toLowerCase();
+					if (banned_words.some(word => text.includes(word))) {
+						let member = interaction.guild.members.fetch(user)
+												.then((mem) => mem.kick())
+												.catch(console.error);
+						interaction.client.channels.cache.get(mainChannelId).send("<@" + user + ">" + " has been kicked for misogyny!");
 					}
 					else {
 						// call ML endpoint
+						let requestArgs = API_ENDPOINT+ "/res?query=";
+						text = text.split(" ");
+						requestArgs = requestArgs + text.join("+");
+						console.log(requestArgs);
+						
+						fetch(requestArgs, options)
+							.then((response) => response.json())
+							.then((obj) => parseFloat(obj.aggressive) > 0.5 || parseFloat(obj.hateful) > 0.5 || parseFloat(obj.targeted) > 0.5)
+							.then((resp) => {
+								console.log("Misogynistic: " + String(resp));
+								if (resp) {
+									let member = interaction.guild.members.fetch(user)
+												.then((mem) => mem.kick())
+												.catch(console.error);
+									
+									interaction.client.channels.cache.get(mainChannelId).send("<@" + user + ">" + " has been kicked for misogyny!");
+								}
+							});
 					}
 				});
 		});
